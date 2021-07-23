@@ -3,8 +3,16 @@
   <div class="accounts">
     <div class="search_form">
       <el-form mode="param" :inline="true">
-        <el-form-item label="货物名称：">
-          <el-input v-model="param.name" style="width: 220px"></el-input>
+        <el-form-item label="账单创建时间：">
+          <el-date-picker
+            v-model="range"
+            type="daterange"
+            range-separator="至"
+            value-format="timestamp"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            @change="changeRangeTime">
+          </el-date-picker>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="getAccountsList">查询</el-button>
@@ -116,7 +124,10 @@ export default {
     },
     data(){
       return {
-        param:{},
+        param:{
+          start:null,
+          end:null
+        },
         list:[],
         accountItem: {
           amount:0,
@@ -128,6 +139,7 @@ export default {
           remark:"",
         },
         dialogVisible: false,
+        range:[],
         types:[
           {
             label:'付款',
@@ -198,7 +210,9 @@ export default {
         });
       },
       clearQuery() {
-        this.param = { name: "" };
+        this.param = { start: null, end:null };
+        this.range = [];
+        this.getAccountsList()
       },
       handlerAdd(){
         if (!this.$store.state.username) {
@@ -248,6 +262,11 @@ export default {
             });
           })
           .catch(() => {});
+      },
+      changeRangeTime(val){
+        this.param.start = val[0];
+        this.param.end = val[1];
+        this.getAccountsList();
       },
       submit(){
         if (!this.accountItem.id) {
